@@ -1,6 +1,7 @@
 "use server"
 import { redirect } from "next/navigation";
-import { serverRegister } from "./registerAction";
+import { serverRegister} from "./registerAction";
+import { serverLogIn} from "./logInAction";
 
 
 const isEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -8,7 +9,6 @@ const isEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 export const registerAction = async (state:any, formData:any) =>{
 
-   await new Promise(res => setTimeout(res, 2000));
 
    interface errorTypes {
     name?:string,
@@ -76,6 +76,50 @@ export const registerAction = async (state:any, formData:any) =>{
     else{
          return {success:false}
     }
+}
+
+
+
+export const logInAction = async (state:any, formData:any) =>{
+
+    // get form data
+    const email: string = formData.get("email")
+    const password: string = formData.get("password")
+
+    // error types
+    interface errors {
+        email?:string
+        password?:string
+
+    }
+    let errors:errors = {}
+
+    // check the email
+    if(! (isEmail.test(email)) ) errors.email = "invalid email"
+
+    // check the password
+    if(password.length < 6) errors.password = "'password must be at least 6 characters"
+
+
+    // if the data is not ready to go to back end
+    const data = {email, password}
+    if(Object.keys(errors).length > 0) return {data, errors, success: false}
+
+    const serverRes = await serverLogIn(data)
+    console.log(serverRes)
+
+    if(serverRes.success)  return {success: true}
+
     
+    if (serverRes.message == 'this acount is not found') {
+        errors.email = serverRes.message
+        return {success: false, data, errors}
+    }
+    else if (serverRes.message == 'Incorrect password') {
+        errors.password = serverRes.message
+        return {success: false, data, errors}
+    }
+
     
+    else return {success: false, data}
 }

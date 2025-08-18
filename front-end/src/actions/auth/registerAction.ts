@@ -19,7 +19,7 @@ export const serverRegister = async (data:stringOBJ) => {
 
         if(res.ok) {
             const resData : any = await res.json()
-            cookyStorage.set('mas', resData.token)
+            cookyStorage.set('myAuth', resData.token)
 
             const {SSI ,message} = resData
             return {success: SSI, message}

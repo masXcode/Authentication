@@ -6,7 +6,7 @@ interface LabelInput{
   name:string,
   label:string,
   defaultValue:string | undefined,
-  error:string | undefined
+  error:string | undefined,
 }
 
 
